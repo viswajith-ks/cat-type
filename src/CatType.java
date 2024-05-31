@@ -60,6 +60,7 @@ public class CatType {
     @SuppressWarnings("resource")
     public void menu() throws InterruptedException{
         menupanel=createpanel("#FF0000");
+        
         mainframe.add(menupanel);
         choice='n';
         Thread.sleep(5000);

@@ -2,13 +2,15 @@ import javax.swing.*;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
-public class CatType {
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+public class CatType implements ActionListener{
     JFrame mainframe;
     JPanel menupanel,newgamepanel,resultpanel,highscorepanel;
-    JButton startbutton;
-    char choice;
+    JButton startbutton,highscorebutton;
+    static char choice;
     public CatType(){
-        choice='m';
+        choice='c';
         Toolkit.getDefaultToolkit().setDynamicLayout(true);
         mainframe=new JFrame();
         mainframe.setTitle("CatType");
@@ -17,6 +19,7 @@ public class CatType {
         mainframe.setIconImage(new ImageIcon("../resources/icon.png").getImage());
         mainframe.getContentPane().setBackground(Color.decode("#808080"));
         mainframe.setLayout(null);
+        //mainframe.setResizable(false);
         mainframe.setVisible(true);
         menupanel=new JPanel();
         newgamepanel=new JPanel();
@@ -27,11 +30,11 @@ public class CatType {
     public JButton createbutton(String title){
         JButton button= new JButton();
         button.setText(title);
-        button.setHorizontalTextPosition(JLabel.CENTER);
+        button.setHorizontalTextPosition(JLabel.LEFT);
+        button.setHorizontalAlignment(JLabel.LEFT);
         button.setVerticalTextPosition(JLabel.CENTER);
-        button.setForeground(Color.decode("#FF00FF"));
-        button.setFont(new Font("Monospaced", Font.BOLD, 30));
-        button.setBounds(300,300,150,30);
+        button.setForeground(Color.decode("#5555ff"));
+        button.setFont(new Font("Cooper Black", Font.PLAIN, 20));
         button.setContentAreaFilled(false);
         button.setOpaque(false);
         button.setBorderPainted(false);
@@ -47,12 +50,12 @@ public class CatType {
         panel.setSize(1024,960);
         panel.setOpaque(true);
         panel.setBorder(null);
-        mainframe.repaint();
+        panel.setLayout(null);
         return panel;
     }
 
     @SuppressWarnings("resource")
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("enter y for GUI");
         char select='y';//new Scanner(System.in).next().charAt(0);
         if(select!='y'){
@@ -60,57 +63,64 @@ public class CatType {
         System.exit(0);
         }
         CatType session=new CatType();
-        while(true){
-            switch(session.choice){
-                case 'm': session.menu();
-                break;
-                case 'n': session.newgame();
-                break;
-                case 'r': session.result();
-                break;
-                case 'h': session.highscore();
-                break;
-            }
-        }
+        session.menu();
     }
 
     @SuppressWarnings("resource")
     public void menu() throws InterruptedException{
         menupanel=createpanel("#808080");
-        startbutton=createbutton("START");
+        startbutton=createbutton("Start");
+        startbutton.setBounds(500,250,180,30);
+        startbutton.setActionCommand("start");
+        startbutton.addActionListener(this);
+        highscorebutton=createbutton("High Scores");
+        highscorebutton.setBounds(500,280,180,30);
         mainframe.add(menupanel);
         menupanel.add(startbutton);
-        choice='n';
-        mainframe.repaint();
-        Thread.sleep(5000);
-        mainframe.remove(menupanel);
+        menupanel.add(highscorebutton);
     }
 
     @SuppressWarnings("resource")
     public  void newgame() throws InterruptedException{
         newgamepanel=createpanel("#0FF000");
         mainframe.add(newgamepanel);
-        choice='r';
-        Thread.sleep(5000);
-        mainframe.remove(newgamepanel);
+        mainframe.repaint();
+        Thread.sleep(1500);
     }
 
     @SuppressWarnings("resource")
     public void result() throws InterruptedException{
         resultpanel=createpanel("#0F0F0F");
         mainframe.add(resultpanel);
-        choice='h';
-        Thread.sleep(5000);
-        mainframe.remove(resultpanel);
+        mainframe.repaint();
     }
 
     @SuppressWarnings("resource")
     public void highscore() throws InterruptedException{
         highscorepanel=createpanel("#000FF0");
         mainframe.add(highscorepanel);
-        choice='m';
-        Thread.sleep(5000);
-        mainframe.remove(highscorepanel);
+        mainframe.repaint();
+    }
+    
+    public void gotonext() throws InterruptedException{
+        switch(choice){
+            case'n':startbutton.removeActionListener(this);
+                    mainframe.remove(menupanel);
+                    newgame();
+                    break;
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent act){
+        if ("start".equals(act.getActionCommand())) {
+            System.out.println("djf");
+            choice='n';
+            try {
+                gotonext();
+            } catch (InterruptedException e) {
+            }
+        }
     }
 
 }

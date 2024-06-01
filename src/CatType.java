@@ -1,10 +1,12 @@
 import javax.swing.*;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.util.Scanner;
 public class CatType {
     JFrame mainframe;
     JPanel menupanel,newgamepanel,resultpanel,highscorepanel;
+    JButton startbutton;
     char choice;
     public CatType(){
         choice='m';
@@ -23,6 +25,22 @@ public class CatType {
         highscorepanel=new JPanel();
     }
 
+    public JButton createbutton(String title){
+        JButton button= new JButton();
+        button.setText(title);
+        button.setHorizontalTextPosition(JLabel.CENTER);
+        button.setVerticalTextPosition(JLabel.CENTER);
+        button.setForeground(Color.decode("#FF00FF"));
+        button.setFont(new Font("Cooper Black", Font.BOLD, 30));
+        button.setBounds(300,300,150,30);
+        button.setContentAreaFilled(false);
+        button.setOpaque(false);
+        button.setBorderPainted(false);
+        button.setFocusable(false);
+        button.setLayout(null);
+        return button;
+    }
+
     public JPanel createpanel(String color){
         JPanel panel=new JPanel();
         panel.setLayout(null);
@@ -37,7 +55,7 @@ public class CatType {
     @SuppressWarnings("resource")
     public static void main(String[] args) throws Exception {
         System.out.println("enter y for GUI");
-        char select=new Scanner(System.in).next().charAt(0);
+        char select='y';//new Scanner(System.in).next().charAt(0);
         if(select!='y'){
         wpmgame.main(args);
         System.exit(0);
@@ -59,9 +77,12 @@ public class CatType {
 
     @SuppressWarnings("resource")
     public void menu() throws InterruptedException{
-        menupanel=createpanel("#FF0000");
+        menupanel=createpanel("#808080");
+        startbutton=createbutton("START");
         mainframe.add(menupanel);
+        menupanel.add(startbutton);
         choice='n';
+        mainframe.repaint();
         Thread.sleep(5000);
         mainframe.remove(menupanel);
     }

@@ -4,11 +4,15 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-public class CatType implements ActionListener{
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+public class CatType implements ActionListener, KeyListener{
     JFrame mainframe;
     JPanel menupanel,newgamepanel,resultpanel,highscorepanel;
     JButton startbutton,highscorebutton;
+    JLabel catlabel;
     static char choice;
+    int cat;
     public CatType(){
         choice='c';
         Toolkit.getDefaultToolkit().setDynamicLayout(true);
@@ -55,11 +59,11 @@ public class CatType implements ActionListener{
     }
 
     @SuppressWarnings("resource")
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args){
         System.out.println("enter y for GUI");
         char select='y';//new Scanner(System.in).next().charAt(0);
         if(select!='y'){
-        wpmgame.main(args);
+        //wpmgame.main(args);
         System.exit(0);
         }
         CatType session=new CatType();
@@ -67,7 +71,7 @@ public class CatType implements ActionListener{
     }
 
     @SuppressWarnings("resource")
-    public void menu() throws InterruptedException{
+    public void menu(){
         menupanel=createpanel("#808080");
         startbutton=createbutton("Start");
         startbutton.setBounds(500,250,180,30);
@@ -75,38 +79,51 @@ public class CatType implements ActionListener{
         startbutton.addActionListener(this);
         highscorebutton=createbutton("High Scores");
         highscorebutton.setBounds(500,280,180,30);
+        highscorebutton.setActionCommand("highscore");
+        highscorebutton.addActionListener(this);
         mainframe.add(menupanel);
         menupanel.add(startbutton);
         menupanel.add(highscorebutton);
     }
 
     @SuppressWarnings("resource")
-    public  void newgame() throws InterruptedException{
+    public  void newgame(){
         newgamepanel=createpanel("#0FF000");
+        catlabel=new JLabel();
+        catlabel.setIcon(new ImageIcon("../resources/catup.png"));
+        catlabel.setOpaque(false);
+        catlabel.setBounds(810,454,200,200);
+        catlabel.setLayout(null);
+        catlabel.setVisible(true);
+        newgamepanel.add(catlabel);
         mainframe.add(newgamepanel);
+        mainframe.addKeyListener(this);
         mainframe.repaint();
-        Thread.sleep(1500);
     }
 
     @SuppressWarnings("resource")
-    public void result() throws InterruptedException{
+    public void result(){
         resultpanel=createpanel("#0F0F0F");
         mainframe.add(resultpanel);
         mainframe.repaint();
     }
 
     @SuppressWarnings("resource")
-    public void highscore() throws InterruptedException{
+    public void highscore(){
         highscorepanel=createpanel("#000FF0");
         mainframe.add(highscorepanel);
         mainframe.repaint();
     }
     
-    public void gotonext() throws InterruptedException{
+    public void gotonext(){
         switch(choice){
-            case'n':startbutton.removeActionListener(this);
+            case 'n':startbutton.removeActionListener(this);
                     mainframe.remove(menupanel);
                     newgame();
+                    break;
+            case 'h':highscorebutton.removeActionListener(this);
+                    mainframe.remove(menupanel);
+                    highscore();
                     break;
         }
     }
@@ -114,13 +131,33 @@ public class CatType implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent act){
         if ("start".equals(act.getActionCommand())) {
-            System.out.println("djf");
             choice='n';
-            try {
-                gotonext();
-            } catch (InterruptedException e) {
-            }
+            gotonext();
         }
+        if ("highscore".equals(act.getActionCommand())) {
+            choice='h';
+            gotonext();
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        
+        if(cat==0){
+            catlabel.setIcon(new ImageIcon("../resources/catleft.png"));
+            cat++;
+        }else if(cat==1){
+            catlabel.setIcon(new ImageIcon("../resources/catright.png"));
+            cat--;
+        }
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
     }
 
 }

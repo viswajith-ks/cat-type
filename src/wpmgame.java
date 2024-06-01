@@ -1,5 +1,7 @@
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Scanner;
+import java.util.LinkedList;
+import java.util.Random;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 public class wpmgame {

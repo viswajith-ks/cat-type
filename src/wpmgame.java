@@ -9,7 +9,7 @@ public class wpmgame {
     String[] collections;
     String question, answer;
     double time;
-    float accuracy, wpm, cps;
+    float accuracy, wpm, cps; //they are different
     float[] leaderboard;
     LinkedList<Integer> wll;
 

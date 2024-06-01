@@ -30,7 +30,7 @@ public class CatType {
         button.setHorizontalTextPosition(JLabel.CENTER);
         button.setVerticalTextPosition(JLabel.CENTER);
         button.setForeground(Color.decode("#FF00FF"));
-        button.setFont(new Font("Courier New", Font.BOLD, 30));
+        button.setFont(new Font("Monospaced", Font.BOLD, 30));
         button.setBounds(300,300,150,30);
         button.setContentAreaFilled(false);
         button.setOpaque(false);

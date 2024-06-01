@@ -20,6 +20,7 @@ public class CatType implements ActionListener, KeyListener{
         mainframe.setTitle("CatType");
         mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainframe.setSize(1024,690);
+        mainframe.setLocationRelativeTo(null);
         mainframe.setIconImage(new ImageIcon("../resources/icon.png").getImage());
         mainframe.getContentPane().setBackground(Color.decode("#808080"));
         mainframe.setLayout(null);

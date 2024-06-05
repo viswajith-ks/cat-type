@@ -38,7 +38,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
     Color pzcolor, themecolor;
     JSlider nofwords;
     static char choice;
-    int cat,diff;
+    int diff;
     float time, accuracy, wpm, cps;
     String answerstring, questionstring;
     String[] wquestion;
@@ -407,13 +407,12 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
     public void keyTyped(KeyEvent e) {
         if (time == 0.0)
             time = (float) LocalTime.now().toNanoOfDay();
-        if (cat == 0) {
-            catlabel.setIcon(new ImageIcon("../resources/catleft.png"));
-            cat++;
-        } else if (cat == 1) {
-            catlabel.setIcon(new ImageIcon("../resources/catright.png"));
-            cat--;
-        }
+            if("qwertasdfghzxcvb123456".contains(String.valueOf(e.getKeyChar())))
+                catlabel.setIcon(new ImageIcon("../resources/catleft.png"));
+            else if("7890-=yuiop[]\\jkl;'nm,./".contains(String.valueOf(e.getKeyChar())))
+                catlabel.setIcon(new ImageIcon("../resources/catright.png"));
+            else
+                catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
     }
 
     @Override

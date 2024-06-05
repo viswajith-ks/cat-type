@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
@@ -37,16 +38,20 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
     JLabel catlabel;
     Color pzcolor, themecolor;
     JSlider nofwords;
+    JToggleButton cap;
     static char choice;
-    int diff;
+    int diff,flag;
     float time, accuracy, wpm, cps;
+    Font me;
     String answerstring, questionstring;
     String[] wquestion;
     String[] wanswer;
     LinkedList<lb> wll;
     nopasteTextField answer;
     public CatType() {
+        me=new Font("Monospaced" , Font.BOLD, 16);
         diff=20;
+        flag=0;
         wll = new LinkedList<lb>();
         pzcolor = Color.decode("#808080");
         themecolor = Color.decode("#6942FF");
@@ -57,6 +62,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         answerstring = "";
         questionstring = "";
         choice = 'c';
+        cap=new JToggleButton();
         Toolkit.getDefaultToolkit().setDynamicLayout(true);
         mainframe = new JFrame();
         mainframe.setTitle("CatType");
@@ -67,7 +73,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         mainframe.setIconImage(
             new ImageIcon("../resources/icon.png").getImage());
         mainframe.getContentPane().setBackground(pzcolor);
-        ;
+        cap.setText("Capitalise");
         mainframe.setLayout(null);
         mainframe.setResizable(false);
         mainframe.setVisible(true);
@@ -86,7 +92,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         button.setHorizontalAlignment(JLabel.LEFT);
         button.setVerticalTextPosition(JLabel.CENTER);
         button.setForeground(themecolor);
-        button.setFont(new Font("Monospaced", Font.BOLD, 20));
+        button.setFont(me);
         button.setContentAreaFilled(false);
         button.setOpaque(false);
         button.setBorderPainted(false);
@@ -127,14 +133,14 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         catlabel.addMouseListener(this);
         menupanel.add(catlabel);
         startbutton.setBounds(450, 250, 280, 55);
-        startbutton.setFont(new Font("Monospaced", Font.BOLD, 50));
+        startbutton.setFont(new Font("Monospaced" , Font.BOLD, 50));
         startbutton.setActionCommand("start");
         startbutton.addActionListener(this);
         highscorebutton = createbutton("High Scores");
         highscorebutton.setBounds(500, 280, 300, 30);
         highscorebutton.setActionCommand("highscore");
         highscorebutton.addActionListener(this);
-        highscorebutton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        highscorebutton.setFont(me);
         mainframe.add(menupanel);
         menupanel.add(startbutton);
         mainframe.repaint();
@@ -144,7 +150,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         clear();
         questionstring = "";
         answerstring = "";
-        wquestion = new wpmgame(diff).question();
+        wquestion = new wpmgame(diff).question(flag);
         for (int i = 0; i < wquestion.length; i++)
             questionstring += wquestion[i] + " ";
         newgamepanel = createpanel("#808080");
@@ -156,7 +162,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         question.setBackground(pzcolor);
         question.getCaret().deinstall(question);
         question.setLineWrap(true);
-        question.setFont(new Font("Monospaced", Font.BOLD, 16));
+        question.setFont(me);
         question.setVisible(true);
         question.setOpaque(true);
         question.setBounds(5, 5, 970, 200);
@@ -166,35 +172,46 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         answer.setVisible(true);
         answer.setOpaque(true);
         answer.setBackground(Color.decode("#696969"));
-        answer.setFont(new Font("Monospaced", Font.BOLD, 16));
+        answer.setFont(me);
         answer.setForeground(Color.decode("#FFFFFF"));
         answer.setCaretColor(Color.BLACK);
         answer.setLineWrap(true);
         JLabel dialog = new JLabel("Start Typing!");
-        dialog.setFont(new Font("Monospaced", Font.BOLD, 15));
+        dialog.setFont(me);
         dialog.setForeground(themecolor);
         dialog.setBounds(20, 225, 980, 25);
         mainframe.add(dialog);
-        nofwords.setBounds(100,530,400,50);
+        nofwords.setBounds(130,500,400,50);
         nofwords.setVisible(true);
         nofwords.setPaintTicks(true);
         nofwords.setMajorTickSpacing(10);
         nofwords.setPaintLabels(true);
-        nofwords.setFont(new Font("Monospaced",Font.PLAIN,15));
+        nofwords.setFont(me);
         nofwords.setBackground(pzcolor);
         nofwords.addChangeListener(this);
         startbutton.setText("refresh");
-        startbutton.setFont(new Font("Monospaced", Font.BOLD, 20));
-        startbutton.setBounds(500,520,120,50);
+        startbutton.setFont(me);
+        startbutton.setBounds(400,580,120,50);
         startbutton.addActionListener(this);
         JPanel answerpanel = createpanel("#808080");
         answerpanel.setBounds(15, 255, 980, 225);
         answerpanel.add(answer);
         catlabel.setIcon(new ImageIcon("../resources/catup.png"));
         catlabel.setOpaque(false);
-        catlabel.setBounds(810, 454, 200, 200);
+        catlabel.setBounds(730, 454, 200, 200);
         catlabel.setLayout(null);
         catlabel.setVisible(true);
+        cap.setBounds(80, 580, 300, 50);
+        cap.setOpaque(false);
+        cap.setBorderPainted(false);
+        cap.setFocusable(false);
+        cap.setContentAreaFilled(false);
+        cap.setFont(me);
+        cap.setBackground(pzcolor);
+        cap.setForeground(themecolor);
+        cap.addActionListener(this);
+        cap.setActionCommand("on");
+        newgamepanel.add(cap);
         newgamepanel.add(nofwords);
         newgamepanel.add(startbutton);
         newgamepanel.add(questionpanel);
@@ -244,7 +261,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         resultpanel.add(cpspane);
         startbutton.setText("New Game");
         startbutton.setSize(180, 30);
-        startbutton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        startbutton.setFont(me);
         startbutton.setLocation(300, 590);
         highscorebutton.setLocation(580, 590);
         highscorebutton.addActionListener(this);
@@ -339,13 +356,13 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
             row[3] = wll.get(i).time;
             model.addRow(row);
         }
-        header.setFont(new Font("Monospaced", Font.BOLD, 20));
+        header.setFont(me);
         header.setBackground(Color.WHITE);
         header.setForeground(Color.black);
         table.setOpaque(true);
         table.setBackground(Color.GRAY);
         table.setForeground(Color.BLACK);
-        table.setFont(new Font("Monospaced", Font.PLAIN, 15));
+        table.setFont(me);
         table.setVisible(true);
         table.setBounds(222, 40, 590, 530);
         header.setBounds(222, 10, 590, 30);
@@ -354,7 +371,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         mainframe.add(table);
         mainframe.pack();
         startbutton.setSize(130, 30);
-        startbutton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        startbutton.setFont(me);
         startbutton.addActionListener(this);
         startbutton.setLocation(450, 600);
         mainframe.add(startbutton);
@@ -371,6 +388,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
                 startbutton.removeActionListener(this);
                 highscorebutton.removeActionListener(this);
                 answer.removeKeyListener(this);
+                cap.removeKeyListener(this);
                 clear();
                 newgame();
                 break;
@@ -400,6 +418,15 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         if ("highscore".equals(act.getActionCommand())) {
             choice = 'h';
             gotonext();
+        }
+        if("on".equals(act.getActionCommand())){
+            if(cap.isSelected()){
+            flag=1;
+            cap.setText("Capitalised");
+             } else{
+            flag=0;
+            cap.setText("lowercase");
+             }
         }
     }
 

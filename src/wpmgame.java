@@ -12,7 +12,7 @@ public class wpmgame {
     float accuracy, wpm, cps; //they are different
     float[] leaderboard;
     LinkedList<lb> wll;
-    int difficulty, chars = 0, words = 0;
+    int flag,difficulty, chars = 0, words = 0;
     String[] collections;
 
     public static void clrscr() {
@@ -75,13 +75,18 @@ public class wpmgame {
         clrscr();
         System.out.println("enter the number of words");
         difficulty=sc.nextInt();
+        System.out.println("Enter 1 To Capitalise Test");
+        if(sc.nextInt()==1)
+        flag=1;
+        else
+        flag=0;
         if(difficulty==0){
         choice='q';
         menu();
         }
         clrscr();
         broom();
-        String[] wquestion = question();
+        String[] wquestion = question(flag);
         countdown();
         System.out.println(question + "\n");
         String[] wanswer = answer();
@@ -91,14 +96,20 @@ public class wpmgame {
         choice = sc.next().charAt(0);
     }
 
-    public String[] question() {
+    public String[] question(int cap) {//0 - no capitalisation 1- capitalise
+        flag=cap;
         String wquestion[];
         Random rand = new Random();
         wquestion = new String[difficulty];
+        String word="";
         for (int i = 0; i < difficulty; i++) {
-            wquestion[i] = collections[rand.nextInt(999)];
+            word=collections[rand.nextInt(999)];
+            if(flag==1)
+            wquestion[i] = Character.toString(Character.toTitleCase(word.charAt(0)))+word.substring(1);
+            else
+            wquestion[i] = word;
+            question += (wquestion[i] + " ");
         }
-        for (int i = 0; i < difficulty; i++) question += (wquestion[i] + " ");
         return wquestion;
     }
 
@@ -199,6 +210,7 @@ public class wpmgame {
         };
         collections = collection.clone();
         choice = 'm';
+        flag=0;
         difficulty = diff;
         question = "";
         answer = "";

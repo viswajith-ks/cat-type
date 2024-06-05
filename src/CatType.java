@@ -58,7 +58,7 @@ public class CatType
     flag = 0;
     wll = new LinkedList<lb>();
     pzcolor = Color.decode("#808080");
-    themecolor = Color.decode("#6942FF");
+    themecolor = Color.decode("#0808FF");
     time = 0;
     accuracy = 0;
     wpm = 0;
@@ -185,7 +185,7 @@ public class CatType
     dialog.setBounds(20, 225, 980, 25);
     mainframe.add(dialog);
     nofwords = new JSpinner(new SpinnerNumberModel(diff, 5, 123, 5));
-    nofwords.setBounds(85, 540, 50, 30);
+    nofwords.setBounds(80, 543, 55, 30);
     nofwords.setVisible(true);
     nofwords.setFont(me);
     nofwords.setBackground(pzcolor);

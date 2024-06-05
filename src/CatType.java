@@ -1,4 +1,3 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -21,19 +20,23 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.text.html.HTMLEditorKit;
 
 @SuppressWarnings("resource")
-public class CatType implements ActionListener, KeyListener, MouseListener {
+public class CatType implements ActionListener, KeyListener, MouseListener, ChangeListener {
     JFrame mainframe;
     JPanel menupanel, newgamepanel, resultpanel, highscorepanel;
     JButton startbutton, highscorebutton;
     JLabel catlabel;
     Color pzcolor, themecolor;
+    JSlider nofwords;
     static char choice;
     int cat,diff;
     float time, accuracy, wpm, cps;
@@ -68,6 +71,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         mainframe.setLayout(null);
         mainframe.setResizable(false);
         mainframe.setVisible(true);
+        nofwords=new JSlider(5,115,diff);
         menupanel = new JPanel();
         newgamepanel = new JPanel();
         resultpanel = new JPanel();
@@ -119,21 +123,20 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         startbutton = createbutton("New Game");
         catlabel = new JLabel();
         catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
-        catlabel.setBounds(300, 180, 200, 200);
+        catlabel.setBounds(250, 180, 200, 200);
         catlabel.addMouseListener(this);
         menupanel.add(catlabel);
-        startbutton.setBounds(500, 250, 180, 30);
+        startbutton.setBounds(450, 250, 280, 55);
+        startbutton.setFont(new Font("Monospaced", Font.BOLD, 50));
         startbutton.setActionCommand("start");
         startbutton.addActionListener(this);
-        startbutton.setFont(new Font("Monospaced", Font.BOLD, 20));
         highscorebutton = createbutton("High Scores");
-        highscorebutton.setBounds(500, 280, 180, 30);
+        highscorebutton.setBounds(500, 280, 300, 30);
         highscorebutton.setActionCommand("highscore");
         highscorebutton.addActionListener(this);
         highscorebutton.setFont(new Font("Monospaced", Font.BOLD, 20));
         mainframe.add(menupanel);
         menupanel.add(startbutton);
-        menupanel.add(highscorebutton);
         mainframe.repaint();
     }
 
@@ -172,6 +175,18 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         dialog.setForeground(themecolor);
         dialog.setBounds(20, 225, 980, 25);
         mainframe.add(dialog);
+        nofwords.setBounds(100,530,400,50);
+        nofwords.setVisible(true);
+        nofwords.setPaintTicks(true);
+        nofwords.setMajorTickSpacing(10);
+        nofwords.setPaintLabels(true);
+        nofwords.setFont(new Font("Monospaced",Font.PLAIN,15));
+        nofwords.setBackground(pzcolor);
+        nofwords.addChangeListener(this);
+        startbutton.setText("refresh");
+        startbutton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        startbutton.setBounds(500,520,120,50);
+        startbutton.addActionListener(this);
         JPanel answerpanel = createpanel("#808080");
         answerpanel.setBounds(15, 255, 980, 225);
         answerpanel.add(answer);
@@ -180,6 +195,8 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         catlabel.setBounds(810, 454, 200, 200);
         catlabel.setLayout(null);
         catlabel.setVisible(true);
+        newgamepanel.add(nofwords);
+        newgamepanel.add(startbutton);
         newgamepanel.add(questionpanel);
         newgamepanel.add(answerpanel);
         newgamepanel.add(catlabel);
@@ -225,9 +242,14 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         cpspane.setBounds(500, 10, 475, 225);
         resultpanel.add(wpmpane);
         resultpanel.add(cpspane);
-        startbutton.setLocation(300, 600);
-        highscorebutton.setLocation(600, 600);
+        startbutton.setText("New Game");
+        startbutton.setSize(180, 30);
+        startbutton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        startbutton.setLocation(300, 590);
+        highscorebutton.setLocation(580, 590);
         highscorebutton.addActionListener(this);
+        startbutton.setSize(130,50);
+        highscorebutton.setSize(169,50);
         startbutton.addActionListener(this);
         resultpanel.add(startbutton);
         resultpanel.add(highscorebutton);
@@ -331,8 +353,10 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         mainframe.add(header);
         mainframe.add(table);
         mainframe.pack();
+        startbutton.setSize(130, 30);
+        startbutton.setFont(new Font("Monospaced", Font.BOLD, 20));
         startbutton.addActionListener(this);
-        startbutton.setLocation(430, 600);
+        startbutton.setLocation(450, 600);
         mainframe.add(startbutton);
         mainframe.repaint();
     }
@@ -446,6 +470,11 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
     public void mouseExited(MouseEvent e) {
         catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
         mainframe.pack();
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        diff=nofwords.getValue();
     }
 }
 

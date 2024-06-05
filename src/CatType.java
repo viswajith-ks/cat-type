@@ -442,7 +442,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
     public void mouseClicked(MouseEvent e) {
         try {
             java.awt.Desktop.getDesktop().browse(
-                new URI("https://www.youtube.com/watch?v=dQw4w9WgXcQ"));
+                new URI("https://www.youtube.com/watch?v=dmA6_0ZwWb4&t=94s"));
         } catch (IOException | URISyntaxException e1) {
         }
     }

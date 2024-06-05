@@ -1,9 +1,4 @@
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalTime;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -14,6 +9,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalTime;
+import java.util.LinkedList;
+import java.util.Scanner;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -34,15 +35,15 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
     JLabel catlabel;
     Color pzcolor, themecolor;
     static char choice;
-    int cat;
-    float time;
-    float accuracy, wpm, cps;
+    int cat,diff;
+    float time, accuracy, wpm, cps;
     String answerstring, questionstring;
     String[] wquestion;
     String[] wanswer;
     LinkedList<lb> wll;
     nopasteTextField answer;
     public CatType() {
+        diff=20;
         wll = new LinkedList<lb>();
         pzcolor = Color.decode("#808080");
         themecolor = Color.decode("#6942FF");
@@ -71,6 +72,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         newgamepanel = new JPanel();
         resultpanel = new JPanel();
         highscorepanel = new JPanel();
+        answer = new nopasteTextField();
     }
 
     public JButton createbutton(String title) {
@@ -86,7 +88,6 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         button.setBorderPainted(false);
         button.setFocusable(false);
         button.setLayout(null);
-        answer = new nopasteTextField();
         return button;
     }
 
@@ -140,7 +141,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         clear();
         questionstring = "";
         answerstring = "";
-        wquestion = new wpmgame(5).question();
+        wquestion = new wpmgame(diff).question();
         for (int i = 0; i < wquestion.length; i++)
             questionstring += wquestion[i] + " ";
         newgamepanel = createpanel("#808080");
@@ -279,23 +280,18 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
         curr = new lb(wpm, cps, accuracy, time);
         if (choice != 'h' && accuracy >= 50.0 && time >= 3.0) {
             float s = (float) (curr.wpm);
-            System.out.println("the wpm is " + s);
             for (int j = 0; j <= wll.size(); j++) {
                 if (wll.size() == 0) {
-                    System.out.println("empty, adding");
                     wll.add(j, curr);
                     break;
                 } else if (s <= wll.get(j).wpm) {
-                    System.out.println("lesser");
                     wll.add(j, curr);
                     break;
                 } else if (j + 1 == wll.size()) {
-                    System.out.println("full");
                     wll.add(j + 1, curr);
                     break;
                 }
                 if (s <= wll.get(j + 1).wpm) {
-                    System.out.println("greater");
                     wll.add(j + 1, curr);
                     break;
                 }
@@ -321,19 +317,22 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
             row[3] = wll.get(i).time;
             model.addRow(row);
         }
+        header.setFont(new Font("Monospaced", Font.BOLD, 20));
         header.setBackground(Color.WHITE);
+        header.setForeground(Color.black);
         table.setOpaque(true);
-        table.setBackground(Color.WHITE);
+        table.setBackground(Color.GRAY);
         table.setForeground(Color.BLACK);
+        table.setFont(new Font("Monospaced", Font.PLAIN, 15));
         table.setVisible(true);
-        table.setBounds(222, 40, 590, 600);
+        table.setBounds(222, 40, 590, 530);
         header.setBounds(222, 10, 590, 30);
         header.setFocusable(false);
         mainframe.add(header);
         mainframe.add(table);
         mainframe.pack();
         startbutton.addActionListener(this);
-        startbutton.setLocation(0, 0);
+        startbutton.setLocation(430, 600);
         mainframe.add(startbutton);
         mainframe.repaint();
     }
@@ -404,6 +403,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener {
                 wanswer = answerstring.split("\\s+");
                 gotonext();
             } else if (time == 0) {
+                answer.setText(null);
                 choice = 'n';
                 gotonext();
             }

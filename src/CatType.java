@@ -53,7 +53,7 @@ public class CatType
   LinkedList<lb> wll;
   nopasteTextField answer;
   public CatType() {
-    me = new Font("Comic Sans MS", Font.BOLD, 16);
+    me = new Font("Comic Sans MS", Font.PLAIN, 16);
     diff = 20;
     flag = 0;
     wll = new LinkedList<lb>();

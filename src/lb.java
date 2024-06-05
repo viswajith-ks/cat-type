@@ -1,4 +1,3 @@
-
 class lb {
     float wpm, cps, accuracy, time;
     public lb(float w, float c, float a, float t) {

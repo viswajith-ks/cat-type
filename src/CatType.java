@@ -31,7 +31,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.text.html.HTMLEditorKit;
 
 @SuppressWarnings("resource")
-public class CatType implements ActionListener, KeyListener, MouseListener, ChangeListener {
+public class CatType
+    implements ActionListener, KeyListener, MouseListener, ChangeListener {
     JFrame mainframe;
     JPanel menupanel, newgamepanel, resultpanel, highscorepanel;
     JButton startbutton, highscorebutton;
@@ -40,7 +41,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
     JSlider nofwords;
     JToggleButton cap;
     static char choice;
-    int diff,flag;
+    int diff, flag;
     float time, accuracy, wpm, cps;
     Font me;
     String answerstring, questionstring;
@@ -49,9 +50,9 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
     LinkedList<lb> wll;
     nopasteTextField answer;
     public CatType() {
-        me=new Font("Comic Sans MS" , Font.BOLD, 16);
-        diff=20;
-        flag=0;
+        me = new Font("Comic Sans MS", Font.BOLD, 16);
+        diff = 20;
+        flag = 0;
         wll = new LinkedList<lb>();
         pzcolor = Color.decode("#808080");
         themecolor = Color.decode("#6942FF");
@@ -62,7 +63,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         answerstring = "";
         questionstring = "";
         choice = 'c';
-        cap=new JToggleButton();
+        cap = new JToggleButton();
         Toolkit.getDefaultToolkit().setDynamicLayout(true);
         mainframe = new JFrame();
         mainframe.setTitle("CatType");
@@ -77,7 +78,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         mainframe.setLayout(null);
         mainframe.setResizable(false);
         mainframe.setVisible(true);
-        nofwords=new JSlider(5,115,diff);
+        nofwords = new JSlider(5, 115, diff);
         menupanel = new JPanel();
         newgamepanel = new JPanel();
         resultpanel = new JPanel();
@@ -133,7 +134,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         catlabel.addMouseListener(this);
         menupanel.add(catlabel);
         startbutton.setBounds(450, 250, 300, 55);
-        startbutton.setFont(new Font("Comic Sans MS" , Font.BOLD, 50));
+        startbutton.setFont(new Font("Comic Sans MS", Font.BOLD, 50));
         startbutton.setActionCommand("start");
         startbutton.addActionListener(this);
         highscorebutton = createbutton("High Scores");
@@ -181,7 +182,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         dialog.setForeground(themecolor);
         dialog.setBounds(20, 225, 980, 25);
         mainframe.add(dialog);
-        nofwords.setBounds(130,500,400,50);
+        nofwords.setBounds(130, 500, 400, 50);
         nofwords.setVisible(true);
         nofwords.setPaintTicks(true);
         nofwords.setMajorTickSpacing(10);
@@ -191,7 +192,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         nofwords.addChangeListener(this);
         startbutton.setText("refresh");
         startbutton.setFont(me);
-        startbutton.setBounds(400,580,120,50);
+        startbutton.setBounds(400, 580, 120, 50);
         startbutton.addActionListener(this);
         JPanel answerpanel = createpanel("#808080");
         answerpanel.setBounds(15, 255, 980, 225);
@@ -265,8 +266,8 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         startbutton.setLocation(300, 590);
         highscorebutton.setLocation(580, 590);
         highscorebutton.addActionListener(this);
-        startbutton.setSize(130,50);
-        highscorebutton.setSize(169,50);
+        startbutton.setSize(130, 50);
+        highscorebutton.setSize(169, 50);
         startbutton.addActionListener(this);
         resultpanel.add(startbutton);
         resultpanel.add(highscorebutton);
@@ -419,14 +420,14 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
             choice = 'h';
             gotonext();
         }
-        if("on".equals(act.getActionCommand())){
-            if(cap.isSelected()){
-            flag=1;
-            cap.setText("Capitalised");
-             } else{
-            flag=0;
-            cap.setText("lowercase");
-             }
+        if ("on".equals(act.getActionCommand())) {
+            if (cap.isSelected()) {
+                flag = 1;
+                cap.setText("Capitalised");
+            } else {
+                flag = 0;
+                cap.setText("lowercase");
+            }
         }
     }
 
@@ -434,12 +435,13 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
     public void keyTyped(KeyEvent e) {
         if (time == 0.0)
             time = (float) LocalTime.now().toNanoOfDay();
-            if("qwertasdfghzxcvb123456".contains(String.valueOf(e.getKeyChar())))
-                catlabel.setIcon(new ImageIcon("../resources/catleft.png"));
-            else if("7890-=yuiop[]\\jkl;'nm,./".contains(String.valueOf(e.getKeyChar())))
-                catlabel.setIcon(new ImageIcon("../resources/catright.png"));
-            else
-                catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
+        if ("qwertasdfghzxcvb123456".contains(String.valueOf(e.getKeyChar())))
+            catlabel.setIcon(new ImageIcon("../resources/catleft.png"));
+        else if ("7890-=yuiop[]\\jkl;'nm,./".contains(
+                     String.valueOf(e.getKeyChar())))
+            catlabel.setIcon(new ImageIcon("../resources/catright.png"));
+        else
+            catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
     }
 
     @Override
@@ -500,6 +502,6 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
 
     @Override
     public void stateChanged(ChangeEvent e) {
-        diff=nofwords.getValue();
+        diff = nofwords.getValue();
     }
 }

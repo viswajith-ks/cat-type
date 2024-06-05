@@ -49,7 +49,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
     LinkedList<lb> wll;
     nopasteTextField answer;
     public CatType() {
-        me=new Font("Monospaced" , Font.BOLD, 16);
+        me=new Font("Comic Sans MS" , Font.BOLD, 16);
         diff=20;
         flag=0;
         wll = new LinkedList<lb>();
@@ -132,8 +132,8 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         catlabel.setBounds(250, 180, 200, 200);
         catlabel.addMouseListener(this);
         menupanel.add(catlabel);
-        startbutton.setBounds(450, 250, 280, 55);
-        startbutton.setFont(new Font("Monospaced" , Font.BOLD, 50));
+        startbutton.setBounds(450, 250, 300, 55);
+        startbutton.setFont(new Font("Comic Sans MS" , Font.BOLD, 50));
         startbutton.setActionCommand("start");
         startbutton.addActionListener(this);
         highscorebutton = createbutton("High Scores");
@@ -243,7 +243,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         wpmpane.setEditorKit(new HTMLEditorKit());
         wpmpane.setEditable(false);
         wpmpane.setText(
-            "<html><body><p><span style=\"font-family: Monospace; font-size: 30; color: #6A5ACD ;\"<span style=\"font-size: 96;\">"
+            "<html><body><p><span style=\"font-family: Comic Sans MS; font-size: 30; color: #6A5ACD ;\"<span style=\"font-size: 96;\">"
             + String.format("\n%.2f", wpm)
             + "</span> wpm</span></p></body></html>");
         wpmpane.setBounds(15, 10, 475, 225);
@@ -253,7 +253,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         cpspane.setEditorKit(new HTMLEditorKit());
         cpspane.setEditable(false);
         cpspane.setText(
-            "<html><body><p><span style=\"font-family: Monospace; font-size: 30; color: #6A5ACD ;\"<span style=\"font-size: 96;\">"
+            "<html><body><p><span style=\"font-family: Comic Sans MS; font-size: 30; color: #6A5ACD ;\"<span style=\"font-size: 96;\">"
             + String.format("\n%.2f", cps)
             + "</span> cps</span></p></body></html>");
         cpspane.setBounds(500, 10, 475, 225);
@@ -284,7 +284,7 @@ public class CatType implements ActionListener, KeyListener, MouseListener, Chan
         clear();
         int k = 0, words = 0, chars = 0;
         String ans =
-            "<html><body><b><span style=\" font-family: Monospace; font-size: 15;\">";
+            "<html><body><b><span style=\" font-family: Comic Sans MS; font-size: 15;\">";
         for (int i = 0; i < Math.min(q.length, a.length); i++) {
             for (k = i; a[k] == " "; k++) {
             }

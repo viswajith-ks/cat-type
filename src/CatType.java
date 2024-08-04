@@ -25,6 +25,8 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
@@ -35,7 +37,8 @@ import javax.swing.text.html.HTMLEditorKit;
 public class CatType
     implements ActionListener, KeyListener, MouseListener, ChangeListener {
   JFrame mainframe;
-  JPanel menupanel, newgamepanel, resultpanel, highscorepanel;
+  Border border;
+  JPanel menupanel, newgamepanel, resultpanel ;
   JButton startbutton, highscorebutton;
   JLabel catlabel;
   Color pzcolor, themecolor;
@@ -49,14 +52,14 @@ public class CatType
   String[] wquestion;
   String[] wanswer;
   LinkedList<lb> wll;
-  nopasteTextField answer;
+  noPasteTextField answer;
   public CatType() {
     me = new Font("Comic Sans MS", Font.PLAIN, 16);
     diff = 20;
     flag = 0;
-    wll = new LinkedList<lb>();
+    wll = new LinkedList<>();
     pzcolor = Color.decode("#808080");
-    themecolor = Color.decode("#0808FF");
+    themecolor = Color.decode("#3A3AC5");
     time = 0;
     accuracy = 0;
     wpm = 0;
@@ -67,12 +70,13 @@ public class CatType
     cap = new JToggleButton();
     Toolkit.getDefaultToolkit().setDynamicLayout(true);
     mainframe = new JFrame();
+    border=new LineBorder(Color.decode("#808080"),0,false);
     mainframe.setTitle("CatType");
     mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     mainframe.setSize(1024, 690);
     mainframe.setPreferredSize(new Dimension(1024, 690));
     mainframe.setLocationRelativeTo(null);
-    mainframe.setIconImage(new ImageIcon("../resources/icon.png").getImage());
+    mainframe.setIconImage(new ImageIcon("../res/icon.png").getImage());
     mainframe.getContentPane().setBackground(pzcolor);
     cap.setText("Capitalise");
     mainframe.setLayout(null);
@@ -82,21 +86,21 @@ public class CatType
     menupanel = new JPanel();
     newgamepanel = new JPanel();
     resultpanel = new JPanel();
-    highscorepanel = new JPanel();
-    answer = new nopasteTextField();
+    answer = new noPasteTextField();
   }
 
   public JButton createbutton(String title) {
     JButton button = new JButton();
     button.setText(title);
+    button.setBackground(Color.decode("#BABADF"));
     button.setHorizontalTextPosition(JLabel.LEFT);
     button.setHorizontalAlignment(JLabel.LEFT);
     button.setVerticalTextPosition(JLabel.CENTER);
     button.setForeground(themecolor);
     button.setFont(me);
-    button.setContentAreaFilled(false);
-    button.setOpaque(false);
-    button.setBorderPainted(false);
+    button.setBorder(border);
+    button.setContentAreaFilled(true);
+    button.setOpaque(true);
     button.setFocusable(false);
     button.setLayout(null);
     return button;
@@ -114,22 +118,24 @@ public class CatType
   }
 
   public static void main(String[] args) throws InterruptedException {
-    System.out.println("enter y for GUI");
-    char select = new Scanner(System.in).next().charAt(0);
-    if (select != 'y') {
-      wpmgame.main(args);
-      System.exit(0);
+    System.out.println("enter t for \033[5mTUI\033[0m or any other for \033[5mGUI\033[0m");
+    if (new Scanner(System.in).next().charAt(0) == 't') {
+          wpmgame.main(args);
+          System.exit(0);
     }
-    CatType session = new CatType();
-    session.menu();
-  }
+    System.out.println("initiating GUI");
+      CatType session = new CatType();
+      session.menu();
+    }
 
   public void menu() {
     clear();
     menupanel = createpanel("#808080");
     startbutton = createbutton("New Game");
+    startbutton.setContentAreaFilled(false);
+    startbutton.setBorder(null);
     catlabel = new JLabel();
-    catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
+    catlabel.setIcon(new ImageIcon("../res/catdown.png"));
     catlabel.setBounds(250, 180, 200, 200);
     catlabel.addMouseListener(this);
     menupanel.add(catlabel);
@@ -149,12 +155,12 @@ public class CatType
 
   public void newgame() {
     clear();
-    time= (float) 0.0;
     questionstring = "";
     answerstring = "";
     wquestion = new wpmgame(diff).question(flag);
-    for (int i = 0; i < wquestion.length; i++)
-      questionstring += wquestion[i] + " ";
+      for (String wquestion1 : wquestion) {
+          questionstring += wquestion1 + " ";
+      }
     newgamepanel = createpanel("#808080");
     JPanel questionpanel = createpanel("#808080");
     questionpanel.setBounds(15, 10, 980, 225);
@@ -184,36 +190,38 @@ public class CatType
     dialog.setBounds(20, 225, 980, 25);
     mainframe.add(dialog);
     nofwords = new JSpinner(new SpinnerNumberModel(diff, 5, 123, 5));
-    nofwords.setBounds(80, 543, 55, 30);
+    nofwords.setBounds(50, 550, 120, 34);
     nofwords.setVisible(true);
     nofwords.setFont(me);
-    nofwords.setBackground(pzcolor);
+    nofwords.setOpaque(true);
     nofwords.setForeground(themecolor);
     nofwords.setFocusable(false);
     nofwords.addChangeListener(this);
-    nofwords.getEditor().getComponent(0).setBackground(pzcolor);
+    nofwords.setBorder(border);
+    nofwords.getEditor().getComponent(0).setBackground(Color.decode("#BABADF"));
     nofwords.getEditor().getComponent(0).setForeground(themecolor);
     nofwords.getEditor().getComponent(0).setName("jdf");
     nofwords.getEditor().getComponent(0).setFont(me);
     startbutton.setText("refresh");
     startbutton.setFont(me);
-    startbutton.setBounds(550, 530, 120, 50);
+    startbutton.setBorder(border);
+    startbutton.setContentAreaFilled(true);
+    startbutton.setHorizontalAlignment(JButton.CENTER);
+    startbutton.setBounds(450, 550, 120, 34);
     startbutton.addActionListener(this);
     JPanel answerpanel = createpanel("#808080");
     answerpanel.setBounds(15, 255, 980, 225);
     answerpanel.add(answer);
-    catlabel.setIcon(new ImageIcon("../resources/catup.png"));
+    catlabel.setIcon(new ImageIcon("../res/catup.png"));
     catlabel.setOpaque(false);
     catlabel.setBounds(730, 454, 200, 200);
     catlabel.setLayout(null);
     catlabel.setVisible(true);
-    cap.setBounds(230, 530, 300, 50);
-    cap.setOpaque(false);
-    cap.setBorderPainted(false);
+    cap.setBounds(250, 550, 120, 34);
+    cap.setBorder(border);
     cap.setFocusable(false);
-    cap.setContentAreaFilled(false);
     cap.setFont(me);
-    cap.setBackground(pzcolor);
+    cap.setBackground(Color.decode("#BABADF"));
     cap.setForeground(themecolor);
     cap.addActionListener(this);
     cap.setActionCommand("on");
@@ -268,11 +276,11 @@ public class CatType
     startbutton.setText("New Game");
     startbutton.setSize(180, 30);
     startbutton.setFont(me);
-    startbutton.setLocation(300, 590);
+    startbutton.setLocation(280, 590);
     highscorebutton.setLocation(580, 590);
     highscorebutton.addActionListener(this);
-    startbutton.setSize(130, 50);
-    highscorebutton.setSize(169, 50);
+    highscorebutton.setHorizontalAlignment(JButton.CENTER);
+    highscorebutton.setSize(169, 30);
     startbutton.addActionListener(this);
     resultpanel.add(startbutton);
     resultpanel.add(highscorebutton);
@@ -288,11 +296,11 @@ public class CatType
 
   public String calcresult(String[] q, String[] a) {
     clear();
-    int k = 0, words = 0, chars = 0;
+    int k , words = 0, chars = 0;
     String ans =
         "<html><body><b><span style=\" font-family: Comic Sans MS; font-size: 15;\">";
     for (int i = 0; i < Math.min(q.length, a.length); i++) {
-      for (k = i; a[k] == " "; k++) {
+      for (k = i; " ".equals(a[k]); k++) {
       }
       if (q[i].equals(a[k])) {
         words++;
@@ -326,7 +334,7 @@ public class CatType
     if (choice != 'h' && accuracy >= 50.0 && time >= 3.0) {
       float s = (float) (curr.wpm);
       for (int j = 0; j <= wll.size(); j++) {
-        if (wll.size() == 0) {
+        if (wll.isEmpty()) {
           wll.add(j, curr);
           break;
         } else if (s <= wll.get(j).wpm) {
@@ -368,7 +376,7 @@ public class CatType
     table.setOpaque(true);
     table.setBackground(Color.GRAY);
     table.setForeground(Color.BLACK);
-    table.setFont(me);
+    table.setFont(new Font("Comic Sans MS", Font.PLAIN, 13));
     table.setVisible(true);
     table.setBounds(222, 40, 590, 530);
     header.setBounds(222, 10, 590, 30);
@@ -390,28 +398,28 @@ public class CatType
 
   public void gotonext() {
     switch (choice) {
-      case 'n':
-        startbutton.removeActionListener(this);
-        highscorebutton.removeActionListener(this);
-        answer.removeKeyListener(this);
-        cap.removeKeyListener(this);
-        clear();
-        newgame();
-        break;
-      case 'h':
-        highscorebutton.removeActionListener(this);
-        startbutton.removeActionListener(this);
-        answer.removeKeyListener(this);
-        clear();
-        highscore();
-        break;
-      case 'r':
-        answer.removeKeyListener(this);
-        highscorebutton.removeActionListener(this);
-        startbutton.removeActionListener(this);
-        clear();
-        result();
-        break;
+      case 'n' -> {
+          startbutton.removeActionListener(this);
+          highscorebutton.removeActionListener(this);
+          answer.removeKeyListener(this);
+          cap.removeKeyListener(this);
+          clear();
+          newgame();
+          }
+      case 'h' -> {
+          highscorebutton.removeActionListener(this);
+          startbutton.removeActionListener(this);
+          answer.removeKeyListener(this);
+          clear();
+          highscore();
+          }
+      case 'r' -> {
+          answer.removeKeyListener(this);
+          highscorebutton.removeActionListener(this);
+          startbutton.removeActionListener(this);
+          clear();
+          result();
+          }
     }
   }
 
@@ -428,10 +436,10 @@ public class CatType
     if ("on".equals(act.getActionCommand())) {
       if (cap.isSelected()) {
         flag = 1;
-        cap.setText("Capitalised");
+        cap.setText("Abc");
       } else {
         flag = 0;
-        cap.setText("lowercase");
+        cap.setText("abc");
       }
     }
   }
@@ -441,12 +449,12 @@ public class CatType
     if (time == 0.0)
       time = (float) LocalTime.now().toNanoOfDay();
     if ("qwertasdfghzxcvb123456".contains(String.valueOf(e.getKeyChar())))
-      catlabel.setIcon(new ImageIcon("../resources/catleft.png"));
-    else if ("7890-=yuiop[]\\jkl;'nm,./".contains(
+      catlabel.setIcon(new ImageIcon("../res/catleft.png"));
+    else if ("7890-=yuiop[]\\jkl;'nm,../res/".contains(
                  String.valueOf(e.getKeyChar())))
-      catlabel.setIcon(new ImageIcon("../resources/catright.png"));
+      catlabel.setIcon(new ImageIcon("../res/catright.png"));
     else
-      catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
+      catlabel.setIcon(new ImageIcon("../res/catdown.png"));
   }
 
   @Override
@@ -469,39 +477,39 @@ public class CatType
 
   @Override
   public void keyReleased(KeyEvent e) {
-    catlabel.setIcon(new ImageIcon("../resources/catup.png"));
+    catlabel.setIcon(new ImageIcon("../res/catup.png"));
   }
 
   @Override
   public void mouseClicked(MouseEvent e) {
     try {
       java.awt.Desktop.getDesktop().browse(
-          new URI("https://www.youtube.com/watch?v=dmA6_0ZwWb4&t=94s"));
+          new URI("https://www.youtube.com/watch?v=4PTXSKdr40k&t=19s"));
     } catch (IOException | URISyntaxException e1) {
     }
   }
 
   @Override
   public void mousePressed(MouseEvent e) {
-    catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
+    catlabel.setIcon(new ImageIcon("../res/catdown.png"));
     mainframe.pack();
   }
 
   @Override
   public void mouseReleased(MouseEvent e) {
-    catlabel.setIcon(new ImageIcon("../resources/catup.png"));
+    catlabel.setIcon(new ImageIcon("../res/catup.png"));
     mainframe.pack();
   }
 
   @Override
   public void mouseEntered(MouseEvent e) {
-    catlabel.setIcon(new ImageIcon("../resources/catup.png"));
+    catlabel.setIcon(new ImageIcon("../res/catup.png"));
     mainframe.pack();
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
-    catlabel.setIcon(new ImageIcon("../resources/catdown.png"));
+    catlabel.setIcon(new ImageIcon("../res/catdown.png"));
     mainframe.pack();
   }
 

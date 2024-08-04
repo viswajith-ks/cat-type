@@ -219,8 +219,8 @@ public class wpmgame {
                 else
                     System.out.println((float) wll.get(i).wpm + " wpm    "
                         + (float) wll.get(i).cps + " cps    "
-                        + (float) wll.get(i).accuracy + " %"
-                        + (float) wll.get(i).time) + " s";
+                        + (float) wll.get(i).accuracy + " %    "
+                        + (float) wll.get(i).time + " s");
             }
             choice = sc.next().charAt(0);
         }

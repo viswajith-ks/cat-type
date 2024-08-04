@@ -20,12 +20,10 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -151,6 +149,7 @@ public class CatType
 
   public void newgame() {
     clear();
+    time= (float) 0.0;
     questionstring = "";
     answerstring = "";
     wquestion = new wpmgame(diff).question(flag);

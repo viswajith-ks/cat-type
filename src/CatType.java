@@ -396,30 +396,33 @@ public class CatType
     mainframe.getContentPane().removeAll();
   }
 
+  /**
+   * 
+   */
   public void gotonext() {
     switch (choice) {
-      case 'n' -> {
+      case 'n' :
           startbutton.removeActionListener(this);
           highscorebutton.removeActionListener(this);
           answer.removeKeyListener(this);
           cap.removeKeyListener(this);
           clear();
           newgame();
-          }
-      case 'h' -> {
+          break;
+      case 'h' :
           highscorebutton.removeActionListener(this);
           startbutton.removeActionListener(this);
           answer.removeKeyListener(this);
           clear();
           highscore();
-          }
-      case 'r' -> {
+          break;
+      case 'r' :
           answer.removeKeyListener(this);
           highscorebutton.removeActionListener(this);
           startbutton.removeActionListener(this);
           clear();
           result();
-          }
+          break;
     }
   }
 

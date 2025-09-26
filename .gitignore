@@ -2,4 +2,4 @@
 *.class
 
 # Output directory
-bin/
+bin/*.class

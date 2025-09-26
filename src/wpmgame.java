@@ -1,375 +1,320 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
-public class wpmgame {
-    Scanner sc;
-    char choice = 'm';
-    String question, answer;
-    float time;
-    float accuracy, wpm, cps; // they are different
-    float[] leaderboard;
-    LinkedList<lb> wll;
-    int flag, difficulty, chars = 0, words = 0;
-    String[] collections;
 
-    public static void clrscr() {
-        try {
-            if (System.getProperty("os.name").toLowerCase().contains("win"))
-                new ProcessBuilder("cmd", "/c", "cls")
-                    .inheritIO()
-                    .start()
-                    .waitFor();
-            else
-                new ProcessBuilder("clear").inheritIO().start().waitFor();
-        } catch (IOException | InterruptedException e) {
+/**
+ * The core engine for the typing speed game.
+ * Manages word generation, result calculation, leaderboard, and the Text-based
+ * UI (TUI).
+ */
+public class WpmGame { // Class name is WpmGame
+    private LinkedList<LeaderboardEntry> leaderboardScores;
+    private String[] collections;
+    private int difficulty;
+
+    // Last game results
+    private float lastWpm = 0;
+    private float lastCps = 0;
+    private float lastAccuracy = 0;
+    private float lastTime = 0;
+
+    // Corrected constructor name and logic
+    public WpmGame(int initialDifficulty) { // Constructor name matches class name, no return type
+        this.leaderboardScores = new LinkedList<>();
+        this.difficulty = initialDifficulty;
+        this.collections = loadWordsFromFile("/res/words.txt");
+    }
+
+    // Constructor for TUI main method, providing a default initial difficulty
+    public WpmGame() {
+        this(20); // Calls the other constructor with a default difficulty
+    }
+
+    private String[] loadWordsFromFile(String path) {
+        List<String> words = new ArrayList<>();
+        try (InputStream is = getClass().getResourceAsStream(path)) {
+            if (is == null) {
+                System.err.println("Error: Word file not found at " + path);
+                // Small default word list as a fallback
+                return new String[] { "hello", "world", "typing", "game", "java" };
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    words.add(line.trim());
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading word file.");
             e.printStackTrace();
+            // Fallback in case of an error
+            return new String[] { "error", "reading", "file" };
         }
-    }
 
-    public void broom() {
-        question = "";
-        answer = "";
-        time = 0;
-        chars = 0;
-        words = 0;
-    }
-
-    public void countdown() throws InterruptedException {
-        for (int count = 3; count > 0; count--) {
-            System.out.println("NEWGAME");
-            System.out.println("   " + count);
-            TimeUnit.SECONDS.sleep(1);
-            clrscr();
+        if (words.isEmpty()) {
+            System.err.println("Warning: Word file is empty.");
+            return new String[] { "empty", "word", "list" };
         }
-        System.out.println("GO!\n");
+
+        // Convert the List<String> to a String[] array
+        return words.toArray(new String[0]);
     }
 
-    public static void main(String args[]) throws InterruptedException {
-        wpmgame obj = new wpmgame(20);
-        obj.menu();
-    }
+    // --- Public API for GUI Interaction ---
 
-    public void menu() throws InterruptedException {
-        while (choice != 'q') {
-            if (choice == 'n')
-                newgame();
-            else if (choice == 'h')
-                highscores();
-            else if (choice == 'm') {
-                clrscr();
-                System.out.println(
-                    "\n\tNEW GAME (\033[44mn\033[0m)\n\tHIGH SCORES (\033[44mh\033[0m)\n\tQUIT (\033[44mq\033[0m)");
-                choice = sc.next().charAt(0);
+    public String[] generateQuestion(int flag) { // 0 for lowercase, 1 for capitalized
+        String[] wquestion = new String[difficulty];
+        Random rand = new Random();
+        for (int i = 0; i < difficulty; i++) {
+            String word = collections[rand.nextInt(collections.length)]; // Use .length
+            if (flag == 1) {
+                wquestion[i] = Character.toTitleCase(word.charAt(0)) + word.substring(1);
             } else {
-                System.out.println("OOPS! INVALID CHOICE");
-                choice = sc.next().charAt(0);
+                wquestion[i] = word;
+            }
+        }
+        return wquestion;
+    }
+
+    public void processResult(String[] questionWords, String[] answerWords, float timeTaken) {
+        if (questionWords == null || answerWords == null || timeTaken <= 0) {
+            return;
+        }
+
+        int correctWords = 0;
+        int correctChars = 0;
+        int totalQuestionChars = 0;
+
+        for (String s : questionWords) {
+            totalQuestionChars += s.length();
+        }
+        totalQuestionChars += questionWords.length - 1; // Account for spaces between words
+
+        // Calculate correct words
+        for (int i = 0; i < Math.min(questionWords.length, answerWords.length); i++) {
+            if (questionWords[i].equals(answerWords[i])) {
+                correctWords++;
+            }
+        }
+
+        // Calculate correct characters for accuracy
+        for (int i = 0; i < Math.min(questionWords.length, answerWords.length); i++) {
+            String qWord = questionWords[i];
+            String aWord = answerWords[i];
+            for (int j = 0; j < Math.min(qWord.length(), aWord.length()); j++) {
+                if (qWord.charAt(j) == aWord.charAt(j)) {
+                    correctChars++;
+                }
+            }
+        }
+
+        // Update last game results
+        this.lastTime = timeTaken;
+        this.lastAccuracy = totalQuestionChars > 0 ? 100.0f * correctChars / totalQuestionChars : 0.0f;
+        this.lastWpm = (60.0f * correctWords) / timeTaken;
+        this.lastCps = correctChars / timeTaken;
+
+        // Add to leaderboard if it's a valid attempt
+        if (this.lastAccuracy >= 50.0 && this.lastTime >= 3.0) {
+            addToLeaderboard(new LeaderboardEntry(lastWpm, lastCps, lastAccuracy, lastTime));
+        }
+    }
+
+    private void addToLeaderboard(LeaderboardEntry entry) {
+        leaderboardScores.add(entry);
+        // Sorts the list in descending order of WPM (highest first)
+        Collections.sort(leaderboardScores, new Comparator<LeaderboardEntry>() {
+            @Override
+            public int compare(LeaderboardEntry o1, LeaderboardEntry o2) {
+                return Float.compare(o2.getWpm(), o1.getWpm());
+            }
+        });
+    }
+
+    // --- Getters for the GUI ---
+    public LinkedList<LeaderboardEntry> getLeaderboardScores() {
+        return leaderboardScores;
+    }
+
+    public float getLastWpm() {
+        return lastWpm;
+    }
+
+    public float getLastCps() {
+        return lastCps;
+    }
+
+    public float getLastAccuracy() {
+        return lastAccuracy;
+    }
+
+    public float getLastTime() {
+        return lastTime;
+    }
+
+    public int getDifficulty() {
+        return this.difficulty;
+    }
+
+    public void setDifficulty(int diff) {
+        this.difficulty = diff;
+    }
+
+    // --- TUI (Text-based User Interface) Section ---
+
+    public static void main(String[] args) throws InterruptedException {
+        WpmGame session = new WpmGame(); // Calls the no-arg constructor
+        session.runTUI();
+    }
+
+    public void runTUI() throws InterruptedException {
+        Scanner sc = new Scanner(System.in);
+        char choice = 'm';
+        while (choice != 'q') {
+            switch (choice) {
+                case 'n':
+                    newGameTUI(sc);
+                    choice = 'm'; // Return to menu after game
+                    break;
+                case 'h':
+                    displayHighScoresTUI();
+                    System.out.println("\nPress 'm' for menu or 'q' to quit.");
+                    choice = sc.next().charAt(0);
+                    break;
+                case 'm':
+                    clrscr();
+                    System.out.println(
+                            "\n\tNEW GAME (\033[44mn\033[0m)\n\tHIGH SCORES (\033[44mh\033[0m)\n\tQUIT (\033[44mq\033[0m)");
+                    choice = sc.next().charAt(0);
+                    break;
+                default:
+                    System.out.println("OOPS! INVALID CHOICE. Returning to menu.");
+                    TimeUnit.SECONDS.sleep(1);
+                    choice = 'm';
+                    break;
             }
         }
         clrscr();
         System.out.println("THANK YOU FOR PLAYING!");
         TimeUnit.SECONDS.sleep(1);
         clrscr();
-        return;
+        sc.close();
     }
 
-    public void newgame() throws InterruptedException {
+    private void newGameTUI(Scanner sc) throws InterruptedException {
         clrscr();
-        System.out.println("enter the number of words");
-        difficulty = sc.nextInt();
-        System.out.println("Enter 1 To Capitalise Test");
-        if (sc.nextInt() == 1)
-            flag = 1;
-        else
-            flag = 0;
-        if (difficulty == 0) {
-            choice = 'q';
-            menu();
-        }
+        System.out.println("Enter the number of words:");
+        setDifficulty(sc.nextInt());
+        System.out.println("Enter 1 for Capitalized Test, 0 for lowercase:");
+        int flag = (sc.nextInt() == 1) ? 1 : 0;
+
         clrscr();
-        broom();
-        String[] wquestion = question(flag);
+        String[] questionWords = generateQuestion(flag);
+        String questionString = String.join(" ", questionWords);
+
         countdown();
-        System.out.println(question + "\n");
-        String[] wanswer = answer();
-        calcresult(wquestion, wanswer);
-        printresult(wquestion, wanswer);
-        highscores();
-        choice = sc.next().charAt(0);
+        System.out.println(questionString + "\n");
+
+        sc.nextLine(); // Consume newline
+        double start = LocalTime.now().toNanoOfDay();
+        String answerString = sc.nextLine();
+        double end = LocalTime.now().toNanoOfDay();
+        float time = (float) ((end - start) / 1_000_000_000.0);
+
+        String[] answerWords = answerString.trim().split("\\s+");
+
+        // Process the result using the core logic
+        processResult(questionWords, answerWords, time);
+
+        printResultTUI(questionWords, answerWords, questionString);
+
+        System.out.println("\nPress any key to continue...");
+        sc.next();
     }
 
-    public String[] question(int cap) { // 0 - no capitalisation 1- capitalise
-        flag = cap;
-        String wquestion[];
-        Random rand = new Random();
-        wquestion = new String[difficulty];
-        String word = "";
-        for (int i = 0; i < difficulty; i++) {
-            word = collections[rand.nextInt(999)];
-            if (flag == 1)
-                wquestion[i] =
-                    Character.toString(Character.toTitleCase(word.charAt(0)))
-                    + word.substring(1);
-            else
-                wquestion[i] = word;
-            question += (wquestion[i] + " ");
-        }
-        return wquestion;
-    }
-
-    public String[] answer() {
-        double start, end;
-        sc.nextLine(); // to consume nextline
-        start = LocalTime.now().toNanoOfDay();
-        answer = "";
-        answer = sc.nextLine();
-        end = LocalTime.now().toNanoOfDay();
-        time = (float) ((end - start) / 1000000000.0);
-        String[] wanswer = answer.split("\\s+");
-        return wanswer;
-    }
-
-    public void calcresult(String[] q, String[] a) {
-        int k;
-        for (int i = 0; i < Math.min(q.length, a.length); i++) {
-            for (k = i; a[k] == " "; k++) {
-            }
-            if (q[i].equals(a[k])) {
-                words++;
-            }
-        }
-        chars += words;
-    }
-
-    public void printresult(String[] q, String[] a)
-        throws InterruptedException {
+    private void printResultTUI(String[] q, String[] a, String questionString) throws InterruptedException {
         clrscr();
-        answer = "";
-        System.out.println(question + "\n");
+        System.out.println(questionString + "\n");
         for (int i = 0; i < Math.min(a.length, q.length); i++) {
-            for (int j = 0; j < Math.min(a[i].length(), q[i].length()); j++) {
-                answer += a[i].charAt(j);
+            String qWord = q[i];
+            String aWord = a[i];
+            for (int j = 0; j < Math.min(aWord.length(), qWord.length()); j++) {
                 TimeUnit.MILLISECONDS.sleep(3);
-                if (a[i].charAt(j) == q[i].charAt(j)) {
-                    chars++;
-                    System.out.print(
-                        "\033[31;32;1m" + a[i].charAt(j) + "\033[0m");
-                } else
-                    System.out.print(
-                        "\033[31;1;4m" + a[i].charAt(j) + "\033[0m");
+                if (aWord.charAt(j) == qWord.charAt(j)) {
+                    System.out.print("\033[31;32;1m" + aWord.charAt(j) + "\033[0m");
+                } else {
+                    System.out.print("\033[31;1;4m" + aWord.charAt(j) + "\033[0m");
+                }
             }
             System.out.print(" ");
         }
-        accuracy = 100 * ((float) chars / (float) question.length());
-        wpm = (float) (60 * words) / (float) time;
-        cps = (float) chars / (float) time;
-        System.out.println("\n\nAccuracy :" + accuracy + "%");
-        System.out.println("Speed :" + wpm + " wpm or about " + cps + " cps");
-        System.out.println("Time :" + time + " seconds");
+        System.out.printf("\n\nAccuracy : %.2f%%", getLastAccuracy());
+        System.out.printf("\nSpeed : %.2f wpm or about %.2f cps", getLastWpm(), getLastCps());
+        System.out.printf("\nTime : %.2f seconds", getLastTime());
     }
 
-    public void highscores() {
-        if (choice == 'h') {
+    private void displayHighScoresTUI() {
+        clrscr();
+        System.out.println("--- HIGH SCORES ---");
+        System.out.println("(WPM, CPS, Accuracy, Time)");
+        if (leaderboardScores.isEmpty()) {
+            System.out.println("No scores yet. Play a game!");
+            return;
+        }
+
+        for (int i = 0; i < leaderboardScores.size(); i++) {
+            LeaderboardEntry score = leaderboardScores.get(i);
+            String prefix = "";
+            String suffix = "";
+            if (i == 0) {
+                prefix = "\033[33m";
+                suffix = "\033[0m 🥇";
+            } // Gold
+            else if (i == 1) {
+                prefix = "\033[36m";
+                suffix = "\033[0m 🥈";
+            } // Cyan
+            else if (i == 2) {
+                prefix = "\033[35m";
+                suffix = "\033[0m 🥉";
+            } // Magenta
+
+            System.out.printf("%s%.2f wpm   %.2f cps   %.2f%%   %.2fs%s\n",
+                    prefix, score.getWpm(), score.getCps(), score.getAccuracy(), score.getTime(), suffix);
+        }
+    }
+
+    private void countdown() throws InterruptedException {
+        for (int count = 3; count > 0; count--) {
+            System.out.println("NEW GAME IN...");
+            System.out.println("  " + count);
+            TimeUnit.SECONDS.sleep(1);
             clrscr();
-            System.out.println("HIGH SCORES (wpm, cps, accuracy, time)");
         }
-        lb curr;
-        curr = new lb(wpm, cps, accuracy, time);
-        if (choice != 'h' && accuracy >= 50.0 && time >= 3.0) {
-            float s = (float) (curr.wpm);
-            for (int j = 0; j <= wll.size(); j++) {
-                if (wll.size() == 0) {
-                    wll.add(j, curr);
-                    break;
-                } else if (s <= wll.get(j).wpm) {
-                    wll.add(j, curr);
-                    break;
-                } else if (j + 1 == wll.size()) {
-                    wll.add(j + 1, curr);
-                    break;
-                }
-                if (s <= wll.get(j + 1).wpm) {
-                    wll.add(j + 1, curr);
-                    break;
-                }
-            }
-        }
-        if (choice == 'h') {
-            for (int i = wll.size() - 1; i >= 0; i--) {
-                if (i == wll.size() - 1)
-                    System.out.println("\033[33m" + (float) wll.get(i).wpm
-                        + " wpm    " + (float) wll.get(i).cps + " cps    "
-                        + (float) wll.get(i).accuracy + " %    "
-                        + (float) wll.get(i).time + " s"
-                        + "\033[0m 🥇\n");
-                else if (i == wll.size() - 2)
-                    System.out.println("\033[36m" + (float) wll.get(i).wpm
-                        + " wpm    " + (float) wll.get(i).cps + " cps    "
-                        + (float) wll.get(i).accuracy + " %    "
-                        + (float) wll.get(i).time + " s"
-                        + "\033[0m 🥈\n");
-                else if (i == wll.size() - 3)
-                    System.out.println("\033[35m" + (float) wll.get(i).wpm
-                        + " wpm    " + (float) wll.get(i).cps + " cps    "
-                        + (float) wll.get(i).accuracy + " %    "
-                        + (float) wll.get(i).time + " s"
-                        + "\033[0m 🥉\n");
-                else
-                    System.out.println((float) wll.get(i).wpm + " wpm    "
-                        + (float) wll.get(i).cps + " cps    "
-                        + (float) wll.get(i).accuracy + " %    "
-                        + (float) wll.get(i).time + " s");
-            }
-            choice = sc.next().charAt(0);
-        }
+        System.out.println("GO!\n");
     }
 
-    public wpmgame(int diff) {
-        wll = new LinkedList<lb>();
-        sc = new Scanner(System.in);
-        String[] collection = {"the", "of", "to", "and", "a", "in", "is", "it",
-            "you", "that", "he", "was", "for", "on", "are", "with", "as", "I",
-            "his", "they", "be", "at", "one", "have", "this", "from", "or",
-            "had", "by", "not", "word", "but", "what", "some", "we", "can",
-            "out", "other", "were", "all", "there", "when", "up", "use", "your",
-            "how", "said", "an", "each", "she", "which", "do", "their", "time",
-            "if", "will", "way", "about", "many", "then", "them", "write",
-            "would", "like", "so", "these", "her", "long", "make", "thing",
-            "see", "him", "two", "has", "look", "more", "day", "could", "go",
-            "come", "did", "number", "sound", "no", "most", "people", "my",
-            "over", "know", "water", "than", "call", "first", "who", "may",
-            "down", "side", "been", "now", "find", "any", "new", "work", "part",
-            "take", "get", "place", "made", "live", "where", "after", "back",
-            "little", "only", "round", "man", "year", "came", "show", "every",
-            "good", "me", "give", "our", "under", "name", "very", "through",
-            "just", "form", "sentence", "great", "think", "say", "help", "low",
-            "line", "differ", "turn", "cause", "much", "mean", "before", "move",
-            "right", "boy", "old", "too", "same", "tell", "does", "set",
-            "three", "want", "air", "well", "also", "play", "small", "end",
-            "put", "home", "read", "hand", "port", "large", "spell", "add",
-            "even", "land", "here", "must", "big", "high", "such", "follow",
-            "act", "why", "ask", "men", "change", "went", "light", "kind",
-            "off", "need", "house", "picture", "try", "us", "again", "animal",
-            "point", "mother", "world", "near", "build", "self", "earth",
-            "father", "head", "stand", "own", "page", "should", "country",
-            "found", "answer", "school", "grow", "study", "still", "learn",
-            "plant", "cover", "food", "sun", "four", "between", "state", "keep",
-            "eye", "never", "last", "let", "thought", "city", "tree", "cross",
-            "farm", "hard", "start", "might", "story", "saw", "far", "sea",
-            "draw", "left", "late", "run", "while", "press", "close", "night",
-            "real", "life", "few", "north", "open", "seem", "together", "next",
-            "white", "children", "begin", "got", "walk", "example", "ease",
-            "paper", "group", "always", "music", "those", "both", "mark",
-            "often", "letter", "until", "mile", "river", "car", "feet", "care",
-            "second", "book", "carry", "took", "science", "eat", "room",
-            "friend", "began", "idea", "fish", "mountain", "stop", "once",
-            "base", "hear", "horse", "cut", "sure", "watch", "color", "face",
-            "wood", "main", "enough", "plain", "girl", "usual", "young",
-            "ready", "above", "ever", "red", "list", "though", "feel", "talk",
-            "bird", "soon", "body", "dog", "family", "direct", "pose", "leave",
-            "song", "measure", "door", "product", "black", "short", "numeral",
-            "class", "wind", "question", "happen", "complete", "ship", "area",
-            "half", "rock", "order", "fire", "south", "problem", "piece",
-            "told", "knew", "pass", "since", "top", "whole", "king", "space",
-            "heard", "best", "hour", "better", "true", "during", "hundred",
-            "five", "remember", "step", "early", "hold", "west", "ground",
-            "interest", "reach", "fast", "verb", "sing", "listen", "six",
-            "table", "travel", "less", "morning", "ten", "simple", "several",
-            "vowel", "toward", "war", "lay", "against", "pattern", "slow",
-            "center", "love", "person", "money", "serve", "appear", "road",
-            "map", "rain", "rule", "govern", "pull", "cold", "notice", "voice",
-            "unit", "power", "town", "fine", "certain", "fly", "fall", "lead",
-            "cry", "dark", "machine", "note", "wait", "plan", "figure", "star",
-            "box", "noun", "field", "rest", "correct", "able", "pound", "done",
-            "beauty", "drive", "stood", "contain", "front", "teach", "week",
-            "final", "gave", "green", "oh", "quick", "develop", "ocean", "warm",
-            "free", "minute", "strong", "special", "mind", "behind", "clear",
-            "tail", "produce", "fact", "street", "inch", "multiply", "nothing",
-            "course", "stay", "wheel", "full", "force", "blue", "object",
-            "decide", "surface", "deep", "moon", "island", "foot", "system",
-            "busy", "test", "record", "boat", "common", "gold", "possible",
-            "plane", "stead", "dry", "wonder", "laugh", "thousand", "ago",
-            "ran", "check", "game", "shape", "equate", "hot", "miss", "brought",
-            "heat", "snow", "tire", "bring", "yes", "distant", "fill", "east",
-            "paint", "language", "among", "grand", "ball", "yet", "wave",
-            "drop", "heart", "am", "present", "heavy", "dance", "engine",
-            "position", "arm", "wide", "sail", "material", "size", "vary",
-            "settle", "speak", "weight", "general", "ice", "matter", "circle",
-            "pair", "include", "divide", "syllable", "felt", "perhaps", "pick",
-            "sudden", "count", "square", "reason", "length", "represent", "art",
-            "subject", "region", "energy", "hunt", "probable", "bed", "brother",
-            "egg", "ride", "cell", "believe", "fraction", "forest", "sit",
-            "race", "window", "store", "summer", "train", "sleep", "prove",
-            "lone", "leg", "exercise", "wall", "catch", "mount", "wish", "sky",
-            "board", "joy", "winter", "sat", "written", "wild", "instrument",
-            "kept", "glass", "grass", "cow", "job", "edge", "sign", "visit",
-            "past", "soft", "fun", "bright", "gas", "weather", "month",
-            "million", "bear", "finish", "happy", "hope", "flower", "clothes",
-            "strange", "gone", "jump", "baby", "eight", "village", "meet",
-            "root", "buy", "raise", "solve", "metal", "whether", "push",
-            "seven", "paragraph", "third", "shall", "held", "hair", "describe",
-            "cook", "floor", "either", "result", "burn", "hill", "safe", "cat",
-            "century", "consider", "type", "law", "bit", "coast", "copy",
-            "phrase", "silent", "tall", "sand", "soil", "roll", "temperature",
-            "finger", "industry", "value", "fight", "lie", "beat", "excite",
-            "natural", "view", "sense", "ear", "else", "quite", "broke", "case",
-            "middle", "kill", "son", "lake", "moment", "scale", "loud",
-            "spring", "observe", "child", "straight", "consonant", "nation",
-            "dictionary", "milk", "speed", "method", "organ", "pay", "age",
-            "section", "dress", "cloud", "surprise", "quiet", "stone", "tiny",
-            "climb", "cool", "design", "poor", "lot", "experiment", "bottom",
-            "key", "iron", "single", "stick", "flat", "twenty", "skin", "smile",
-            "crease", "hole", "trade", "melody", "trip", "office", "receive",
-            "row", "mouth", "exact", "symbol", "die", "least", "trouble",
-            "shout", "except", "wrote", "seed", "tone", "join", "suggest",
-            "clean", "break", "lady", "yard", "rise", "bad", "blow", "oil",
-            "blood", "touch", "grew", "cent", "mix", "team", "wire", "cost",
-            "lost", "brown", "wear", "garden", "equal", "sent", "choose",
-            "fell", "fit", "flow", "fair", "bank", "collect", "save", "control",
-            "decimal", "gentle", "woman", "captain", "practice", "separate",
-            "difficult", "doctor", "please", "protect", "noon", "whose",
-            "locate", "ring", "character", "insect", "caught", "period",
-            "indicate", "radio", "spoke", "atom", "human", "history", "effect",
-            "electric", "expect", "crop", "modern", "element", "hit", "student",
-            "corner", "party", "supply", "bone", "rail", "imagine", "provide",
-            "agree", "thus", "capital", "chair", "danger", "fruit", "rich",
-            "thick", "soldier", "process", "operate", "guess", "necessary",
-            "sharp", "wing", "create", "neighbor", "wash", "bat", "rather",
-            "crowd", "corn", "compare", "poem", "string", "bell", "depend",
-            "meat", "rub", "tube", "famous", "dollar", "stream", "fear",
-            "sight", "thin", "triangle", "planet", "hurry", "chief", "colony",
-            "clock", "mine", "tie", "enter", "major", "fresh", "search", "send",
-            "yellow", "gun", "allow", "print", "dead", "spot", "desert", "suit",
-            "current", "lift", "rose", "continue", "block", "chart", "hat",
-            "sell", "success", "company", "subtract", "event", "particular",
-            "deal", "swim", "term", "opposite", "wife", "shoe", "shoulder",
-            "spread", "arrange", "camp", "invent", "cotton", "born",
-            "determine", "quart", "nine", "truck", "noise", "level", "chance",
-            "gather", "shop", "stretch", "throw", "shine", "property", "column",
-            "molecule", "select", "wrong", "gray", "repeat", "require", "broad",
-            "prepare", "salt", "nose", "plural", "anger", "claim", "continent",
-            "oxygen", "sugar", "death", "pretty", "skill", "women", "season",
-            "solution", "magnet", "silver", "thank", "branch", "match",
-            "suffix", "especially", "fig", "afraid", "huge", "sister", "steel",
-            "discuss", "forward", "similar", "guide", "experience", "score",
-            "apple", "bought", "led", "pitch", "coat", "mass", "card", "band",
-            "rope", "slip", "win", "dream", "evening", "condition", "feed",
-            "tool", "total", "basic", "smell", "valley", "nor", "double",
-            "seat", "arrive", "master", "track", "parent", "shore", "division",
-            "sheet", "substance", "favor", "connect", "post", "spend", "chord",
-            "fat", "glad", "original", "share", "station", "dad", "bread",
-            "charge", "proper", "bar", "offer", "segment", "duck", "instant",
-            "market", "degree", "populate", "chick", "dear", "enemy", "reply",
-            "drink", "occur", "support", "speech", "nature", "range", "steam",
-            "motion", "path", "liquid", "log", "meant", "quotient", "teeth",
-            "shell", "neck", "program", "public"};
-        collections = collection.clone();
-        choice = 'm';
-        flag = 0;
-        difficulty = diff;
-        question = "";
-        answer = "";
+    private static void clrscr() {
+        try {
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                new ProcessBuilder("clear").inheritIO().start().waitFor();
+            }
+        } catch (IOException | InterruptedException e) {
+            // Silently fail if clear screen is not possible
+        }
     }
 }
